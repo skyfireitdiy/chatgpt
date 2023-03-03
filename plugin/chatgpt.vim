@@ -1,25 +1,46 @@
+python <<EOF
+try:
+    import os
+    import openai
+except Exception as e:
+    os.system("pip3 install --user openai")
+    import openai
 
-let g:home_dir = $HOME
-let g:openaiApikey = ""
-let g:defaulOpenaiApikeyFile = g:home_dir.."/.openai.key"
 
-function! chatgpt#SetApiKeyFile(apikeyFile)
-    let g:defaulOpenaiApikeyFile = a:apikeyFile
-endfunction
+keyFile = os.path.join(os.environ["HOME"], ".openai.key")
+model = "gpt-3.5-turbo"
 
-function! chatgpt#ReadApiKey()
-    if g:openaiApikey != ""
-        return TRUE
-    endif
-    if !filereadable(g:defaulOpenaiApikeyFile)
-        return FALSE
-    endif
-    let filelines = readfile(g:defaulOpenaiApikeyFile)
-    let g:openaiApikey = join(filelines, "\n")
-    return g:openaiApikey != ""
-endfunction
+def readOpenAiApiKey():
+    global opanaiApiKey
+    with open(keyFile, "r") as f:
+        openai.api_key = f.read().strip()
 
-function! chatgpt#GetModules()
-    let cmd = 'curl https://api.openai.com/v1/models -H "Authorization: Bearer '..g:openaiApikey..'"'
-    return system(cmd)
+def chat(content):
+    return openai.ChatCompletion.create(model=model, messages=[
+        {"role":"user", "content": content}
+        ]).choices[0].message.content
+
+if os.path.exists(keyFile):
+    readOpenAiApiKey()
+EOF
+
+
+
+function! chatgpt#AddContent(content)
+    let index = bufnr('__chatgpt__')
+    if index == -1
+        split
+        enew
+        file __chatgpt__
+        setlocal noswapfile
+        setlocal nofile
+        setlocal hidden
+        let index = bufnr('%')
+    else
+        if index(tabpagebuflist(), index) == -1
+            split
+        endif
+        execute 'buffer' index
+      endif
+    call append(line('$'), a:content)
 endfunction
