@@ -1,20 +1,25 @@
 
 let g:home_dir = $HOME
-let g:apikey = ""
-let g:defaulApikeyFile = g:home_dir.."/.openai.key"
+let g:openaiApikey = ""
+let g:defaulOpenaiApikeyFile = g:home_dir.."/.openai.key"
 
-function! SetApkKeyFile(apikeyFile)
-    let g:defaulApikeyFile = a:apikeyFile
+function! chatgpt#SetApiKeyFile(apikeyFile)
+    let g:defaulOpenaiApikeyFile = a:apikeyFile
 endfunction
 
-function! ReadApiKey()
-    if g:apikey != ""
+function! chatgpt#ReadApiKey()
+    if g:openaiApikey != ""
         return TRUE
     endif
-    if !filereadable(g:defaulApikeyFile)
+    if !filereadable(g:defaulOpenaiApikeyFile)
         return FALSE
     endif
-    let filelines = readfile(g:defaulApikeyFile)
-    let g:apikey = join(filelines, "\n")
-    return g:apikey != ""
+    let filelines = readfile(g:defaulOpenaiApikeyFile)
+    let g:openaiApikey = join(filelines, "\n")
+    return g:openaiApikey != ""
+endfunction
+
+function! chatgpt#GetModules()
+    let cmd = 'curl https://api.openai.com/v1/models -H "Authorization: Bearer '..g:openaiApikey..'"'
+    return system(cmd)
 endfunction
