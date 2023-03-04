@@ -25,7 +25,6 @@ if os.path.exists(keyFile):
 EOF
 
 
-
 function! chatgpt#AddContent(content)
     let index = bufnr('__chatgpt__')
     if index == -1
@@ -39,8 +38,20 @@ function! chatgpt#AddContent(content)
     else
         if index(tabpagebuflist(), index) == -1
             split
+            execute 'buffer' index
+        else
+            call win_gotoid(win_findbuf(index)[0])
         endif
-        execute 'buffer' index
-      endif
+    endif
     call append(line('$'), a:content)
+endfunction
+
+
+
+function! chatgpt#Chat()
+    let content = input("You say:")
+    if content == ""
+        return
+    endif
+    call chatgpt#AddContent('You:' . content)
 endfunction
