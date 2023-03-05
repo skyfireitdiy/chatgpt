@@ -87,9 +87,4 @@ function! chatgpt#Chat()
 endfunction
 
 
-call chatgpt#AddConfig('<leader>ce', "请解释一下以下代码的含义：\\n%selected%")
-call chatgpt#AddConfig('<leader>cd', "以下代码有什么问题吗：\\n%selected%")
 
-function! ChatGPTAddConfig(key, content)
-    call chatgpt#AddConfig(a:key, a:content)
-endfunction
