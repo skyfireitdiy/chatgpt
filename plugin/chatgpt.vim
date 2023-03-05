@@ -15,6 +15,11 @@ function! chatgpt#AddContent(content)
         setlocal filetype=markdown
         setlocal buftype=nofile
         let index = bufnr('%')
+        call append(line('$'), '- ChatGPT Vim Plugin')
+        call append(line('$'), '- SkyFire')
+        call append(line('$'), '- https://github.com/skyfireitdiy/chatgpt')
+        call append(line('$'), '- skyfireitdiy@hotmail.com')
+        call append(line('$'), '-------------------------------------------------')
     else
         if index(tabpagebuflist(), index) == -1
             split
