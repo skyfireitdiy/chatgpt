@@ -100,7 +100,7 @@ function! chatgpt#Chat()
     call chatgpt#ChatInVim(content)
 endfunction
 
-augroup! chatgptWipeBuf
+augroup chatgptWipeBuf
 autocmd!
 autocmd VimLeave * :call chatgpt#WipeBuf()
 augroup END
