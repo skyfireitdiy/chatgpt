@@ -22,7 +22,7 @@ function! chatgpt#AddContent(content)
         call append(line('$'), '-------------------------------------------------')
     else
         if index(tabpagebuflist(), index) == -1
-            split
+            vsplit
             execute 'buffer' index
         else
             call win_gotoid(win_findbuf(index)[0])
@@ -30,6 +30,20 @@ function! chatgpt#AddContent(content)
     endif
     call append(line('$'), a:content)
     normal! G
+endfunction
+
+function! chatgpt#WipeBuf()
+    let index = bufnr('__chatgpt__')
+    if index == -1
+        return
+    endif
+    if index(tabpagebuflist(), index) == -1
+        vsplit
+        execute 'buffer' index
+    else
+        call win_gotoid(win_findbuf(index)[0])
+    endif
+    bwipeout!
 endfunction
 
 function! chatgpt#JobStdoutHandler(j, d, e)
@@ -86,5 +100,8 @@ function! chatgpt#Chat()
     call chatgpt#ChatInVim(content)
 endfunction
 
-
+augroup! chatgptWipeBuf
+autocmd!
+autocmd VimLeave * :call chatgpt#WipeBuf()
+augroup END
 
