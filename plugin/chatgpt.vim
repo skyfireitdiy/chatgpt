@@ -80,7 +80,6 @@ function! chatgpt#Chat()
     call chatgpt#ChatInVim(content)
 endfunction
 
-nnoremap <silent><leader>cc :call chatgpt#Chat()
 
 call chatgpt#AddConfig('<leader>ce', "请解释一下以下代码的含义：\\n%selected%")
 call chatgpt#AddConfig('<leader>cd', "以下代码有什么问题吗：\\n%selected%")
