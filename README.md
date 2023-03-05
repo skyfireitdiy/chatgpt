@@ -13,9 +13,6 @@ This is a Vim plugin for ChatGPT. It allows you to chat with the OpenAI-powered 
 3. Add the following lines to your `~/.vimrc` file:
 
 ```
-let g:openaiKeyFile = "<path/to/openai.key>"
-let g:chatgptModel = "gpt-3.5-turbo"
-
 nnoremap <silent> <leader>C :call chatgpt#Chat()<cr>
 ```
 
