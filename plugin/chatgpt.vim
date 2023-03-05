@@ -1,4 +1,4 @@
-let g:chatgptPyScript = expand("%:p:h") . "/chatgpt.py"
+let g:chatgptPyScript = expand("<sfile>:p:h") . "/chatgpt.py"
 let g:openaiKeyFile = $HOME . "/.openai.key"
 let g:chatgptModel = "gpt-3.5-turbo"
 
