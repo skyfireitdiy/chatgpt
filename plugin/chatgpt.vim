@@ -1,29 +1,6 @@
-python <<EOF
-try:
-    import os
-    import openai
-except Exception as e:
-    os.system("pip3 install --user openai")
-    import openai
-
-
-keyFile = os.path.join(os.environ["HOME"], ".openai.key")
-model = "gpt-3.5-turbo"
-
-def readOpenAiApiKey():
-    global opanaiApiKey
-    with open(keyFile, "r") as f:
-        openai.api_key = f.read().strip()
-
-def chat(content):
-    return openai.ChatCompletion.create(model=model, messages=[
-        {"role":"user", "content": content}
-        ]).choices[0].message.content
-
-if os.path.exists(keyFile):
-    readOpenAiApiKey()
-EOF
-
+let g:chatgptPyScript = expand("%:p:h") . "/chatgpt.py"
+let g:openaiKeyFile = $HOME . "/.openai.key"
+let g:chatgptModel = "gpt-3.5-turbo"
 
 function! chatgpt#AddContent(content)
     let index = bufnr('__chatgpt__')
@@ -32,8 +9,9 @@ function! chatgpt#AddContent(content)
         enew
         file __chatgpt__
         setlocal noswapfile
-        setlocal nofile
         setlocal hidden
+        setlocal wrap
+        setlocal filetype=markdown
         let index = bufnr('%')
     else
         if index(tabpagebuflist(), index) == -1
@@ -46,12 +24,25 @@ function! chatgpt#AddContent(content)
     call append(line('$'), a:content)
 endfunction
 
+function! chatgpt#JobStdoutHandler(j, d, e)
+    call chatgpt#AddContent('- Chatgpt:')
+    call chatgpt#AddContent(a:d)
+    call chatgpt#AddContent('')
+    call chatgpt#AddContent('==================================================')
+endfunction
 
+function! chatgpt#CallPythonChat(content)
+    let cmd = "python3 " . g:chatgptPyScript . " --keyfile " . shellescape(g:openaiKeyFile) . " --model " . shellescape(g:chatgptModel) . " " . shellescape(a:content) 
+    echom 'cmd is:' . cmd
+    call jobstart(cmd, {'on_stdout': function("chatgpt#JobStdoutHandler"), 'stdout_buffered': 1})
+endfunction
 
 function! chatgpt#Chat()
     let content = input("You say:")
     if content == ""
         return
     endif
-    call chatgpt#AddContent('You:' . content)
+    call chatgpt#AddContent('- You:' . content)
+    call chatgpt#AddContent('')
+    call chatgpt#CallPythonChat(content)
 endfunction
