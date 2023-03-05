@@ -25,17 +25,23 @@ function! chatgpt#AddContent(content)
 endfunction
 
 function! chatgpt#JobStdoutHandler(j, d, e)
-    call chatgpt#AddContent('- Chatgpt:')
+    call chatgpt#AddContent('## Chatgpt:')
     call chatgpt#AddContent(a:d)
-    call chatgpt#AddContent('')
-    call chatgpt#AddContent('==================================================')
+    call chatgpt#AddContent('--------------------------------------------------')
 endfunction
 
 function! chatgpt#CallPythonChat(content)
     let cmd = "python3 " . g:chatgptPyScript . " --keyfile " . shellescape(g:openaiKeyFile) . " --model " . shellescape(g:chatgptModel) . " " . shellescape(a:content) 
-    echom 'cmd is:' . cmd
     call jobstart(cmd, {'on_stdout': function("chatgpt#JobStdoutHandler"), 'stdout_buffered': 1})
 endfunction
+
+function! chatgpt#ChatInVim(content)
+    call chatgpt#AddContent('# You:')
+    call chatgpt#AddContent(split(a:content, '\n'))
+    call chatgpt#AddContent('--------------------------------------------------')
+    call chatgpt#CallPythonChat(a:content)
+endfunction
+
 
 function! chatgpt#SetKeyFile(keyfile)
     let g:openaiKeyFile = keyfile
@@ -45,14 +51,33 @@ function! chatgpt#SetModel(model)
     let g:chatgptModel = model
 endfunction
 
+function! chatgpt#getSelectedText()
+	let save_reg = @a
+	normal! gv"ay
+	let text = @a
+	let @a = save_reg
+	return text
+endfunction
+
+function! chatgpt#ChatViusalContent(content)
+	let selected = chatgpt#getSelectedText()
+    let new_content = substitute(a:content, '%selected%', selected, 'g')
+	call chatgpt#ChatInVim(new_content)
+	" echom new_content
+endfunction
+
+function! chatgpt#AddConfig(key, content)
+    execute 'vnoremap <silent> '. a:key . ' :<bs><bs><bs><bs><bs>call chatgpt#ChatViusalContent("' . a:content . '")<cr>'
+endfunction
+
+
 function! chatgpt#Chat()
     let content = input("You say:")
     if content == ""
         return
     endif
-    call chatgpt#AddContent('- You:')
-    call chatgpt#AddContent('')
-    call chatgpt#AddContent(content)
-    call chatgpt#AddContent('')
-    call chatgpt#CallPythonChat(content)
+    call chatgpt#ChatInVim(content)
 endfunction
+
+call chatgpt#AddConfig('<leader>ce', "请解释一下以下代码的含义：\\n%selected%")
+call chatgpt#AddConfig('<leader>cd', "以下代码有什么问题吗：\\n%selected%")
