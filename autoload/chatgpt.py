@@ -10,7 +10,6 @@ except Exception as e:
 keyFile = os.path.join(os.environ["HOME"], ".openai.key")
 
 def readOpenAiApiKey():
-    global opanaiApiKey
     with open(keyFile, "r") as f:
         openai.api_key = f.read().strip()
 
