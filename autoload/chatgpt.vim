@@ -9,11 +9,6 @@ function! chatgpt#AddContent(content)
         wincmd L
         enew
         file __chatgpt__
-        setlocal noswapfile
-        setlocal hidden
-        setlocal wrap
-        setlocal filetype=markdown
-        setlocal buftype=nofile
         let index = bufnr('%')
         call append(line('$'), '- ChatGPT Vim Plugin')
         call append(line('$'), '- SkyFire')
@@ -29,6 +24,11 @@ function! chatgpt#AddContent(content)
             call win_gotoid(win_findbuf(index)[0])
         endif
     endif
+    setlocal noswapfile
+    setlocal hidden
+    setlocal wrap
+    setlocal filetype=markdown
+    setlocal buftype=nofile
     call append(line('$'), a:content)
     normal! G
 endfunction
@@ -104,5 +104,7 @@ endfunction
 augroup chatgptWipeBuf
 autocmd!
 autocmd VimLeave * :call chatgpt#WipeBuf()
+autocmd VimEnter * :call chatgpt#WipeBuf()
+autocmd SessionLoadPost * :call chatgpt#WipeBuf()
 augroup END
 
