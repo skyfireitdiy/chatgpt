@@ -14,8 +14,9 @@ def readOpenAiApiKey():
         openai.api_key = f.read().strip()
 
 def chat(model, content):
-    if openai.api_key == "":
+    if openai.api_key is None:
         return "please put your apikey to %s" % keyFile
+    print(openai.api_key)
     return openai.ChatCompletion.create(model=model, messages=[
         {"role":"user", "content": content}
         ]).choices[0].message.content
