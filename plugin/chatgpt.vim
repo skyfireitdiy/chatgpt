@@ -5,7 +5,8 @@ let g:chatgptModel = "gpt-3.5-turbo"
 function! chatgpt#AddContent(content)
     let index = bufnr('__chatgpt__')
     if index == -1
-        split
+        vsplit
+        wincmd L
         enew
         file __chatgpt__
         setlocal noswapfile
