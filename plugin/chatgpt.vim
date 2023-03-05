@@ -37,6 +37,14 @@ function! chatgpt#CallPythonChat(content)
     call jobstart(cmd, {'on_stdout': function("chatgpt#JobStdoutHandler"), 'stdout_buffered': 1})
 endfunction
 
+function! chatgpt#SetKeyFile(keyfile)
+    let g:openaiKeyFile = keyfile
+endfunction
+
+function! chatgpt#SetModel(model)
+    let g:chatgptModel = model
+endfunction
+
 function! chatgpt#Chat()
     let content = input("You say:")
     if content == ""
