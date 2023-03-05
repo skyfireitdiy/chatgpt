@@ -42,7 +42,9 @@ function! chatgpt#Chat()
     if content == ""
         return
     endif
-    call chatgpt#AddContent('- You:' . content)
+    call chatgpt#AddContent('- You:')
+    call chatgpt#AddContent('')
+    call chatgpt#AddContent(content)
     call chatgpt#AddContent('')
     call chatgpt#CallPythonChat(content)
 endfunction
