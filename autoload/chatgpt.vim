@@ -23,6 +23,7 @@ function! chatgpt#AddContent(content)
     else
         if index(tabpagebuflist(), index) == -1
             vsplit
+            wincmd L
             execute 'buffer' index
         else
             call win_gotoid(win_findbuf(index)[0])
