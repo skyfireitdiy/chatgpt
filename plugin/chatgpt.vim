@@ -12,6 +12,7 @@ function! chatgpt#AddContent(content)
         setlocal hidden
         setlocal wrap
         setlocal filetype=markdown
+        setlocal buftype=nofile
         let index = bufnr('%')
     else
         if index(tabpagebuflist(), index) == -1
@@ -22,6 +23,7 @@ function! chatgpt#AddContent(content)
         endif
     endif
     call append(line('$'), a:content)
+    normal! G
 endfunction
 
 function! chatgpt#JobStdoutHandler(j, d, e)
@@ -63,7 +65,6 @@ function! chatgpt#ChatViusalContent(content)
 	let selected = chatgpt#getSelectedText()
     let new_content = substitute(a:content, '%selected%', selected, 'g')
 	call chatgpt#ChatInVim(new_content)
-	" echom new_content
 endfunction
 
 function! chatgpt#AddConfig(key, content)
@@ -79,5 +80,9 @@ function! chatgpt#Chat()
     call chatgpt#ChatInVim(content)
 endfunction
 
+nnoremap <silent><leader>cc :call chatgpt#Chat()
+
 call chatgpt#AddConfig('<leader>ce', "请解释一下以下代码的含义：\\n%selected%")
 call chatgpt#AddConfig('<leader>cd', "以下代码有什么问题吗：\\n%selected%")
+
+
