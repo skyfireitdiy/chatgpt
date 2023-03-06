@@ -84,8 +84,7 @@ endfunction
 
 function! chatgpt#ChatViusalContent(content)
 	let selected = chatgpt#getSelectedText()
-	let selected = substitute(selected, '&', '\&', 'g')
-    let new_content = substitute(a:content, '%selected%', selected, 'g')
+    let new_content = substitute(a:content, '&', selected, 'g')
 	call chatgpt#ChatInVim(new_content)
 endfunction
 

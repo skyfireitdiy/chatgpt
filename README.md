@@ -34,10 +34,10 @@ The ChatGPT plugin supports a number of customization options. These can be set 
 In addition, you can define new mappings for visual mode using the `chatgpt#AddConfig(key, content)` function. For example, the following command creates a new mapping that sends the selected text to ChatGPT:
 
 ```
-call chatgpt#AddConfig('<leader>g', 'Somebody said: %selected%')
+call chatgpt#AddConfig('<leader>g', 'Somebody said: &')
 ```
 
-Now, in visual mode, you can select some text and then type `<leader>g` to send it to ChatGPT with the message "Somebody said: <selected text>". The `%selected%` placeholder will be replaced with the actual selected text.
+Now, in visual mode, you can select some text and then type `<leader>g` to send it to ChatGPT with the message "Somebody said: <selected text>". The `&` placeholder will be replaced with the actual selected text.
 
 ## License
 
