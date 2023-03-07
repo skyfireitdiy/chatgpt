@@ -16,7 +16,7 @@ This is a Vim plugin for ChatGPT. It allows you to chat with the OpenAI-powered 
 nnoremap <silent> <leader>C :call chatgpt#Chat()<cr>
 ```
 
-Make sure to replace `<path/to/chatgpt.py>` and `<path/to/openai.key>` with the actual paths. You can obtain an OpenAI API key at https://beta.openai.com/signup/.
+Please save your openai apikey in the file $HOME/.openai.key.
 
 ## Usage 
 
