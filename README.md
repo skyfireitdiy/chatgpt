@@ -1,46 +1,47 @@
 # ChatGPT Vim Plugin
 
-- Author: SkyFire
-- GitHub: https://github.com/skyfireitdiy/chatgpt
-- Email: skyfireitdiy@hotmail.com
-
-This is a Vim plugin for ChatGPT. It allows you to chat with the OpenAI-powered ChatGPT model within Vim.
+ChatGPT Vim Plugin is a Vim plugin that provides a chat interface with OpenAI's GPT models. It allows you to chat with an AI in Vim and get responses in real-time.
 
 ## Installation
 
-1. Install the `python3` executable.
-2. Clone the `chatgpt` repository at `https://github.com/skyfireitdiy/chatgpt.git`.
-3. Add the following lines to your `~/.vimrc` file:
+To install this plugin, you can use your favorite plugin manager. For example, if you're using Vim-Plug, you can add the following line to your vimrc file:
 
-```
-nnoremap <silent> <leader>C :call chatgpt#Chat()<cr>
+```vim
+Plug 'skyfireitdiy/chatgpt'
 ```
 
-Please save your openai apikey in the file $HOME/.openai.key.
+## Usage
 
-## Usage 
+To start a new chat session, you can use the `:call chatgpt#Chat()` command. It will prompt you to enter the text you want to send to the AI, and show the response in the buffer. You can also use the following commands:
 
-### Basic Usage
+- `:call chatgpt#LoadSession()`: load an existing chat session.
+- `:call chatgpt#DeleteSession()`: delete an existing chat session.
+- `:call chatgpt#SetModel(model)`: set the GPT model to use. The default model is "gpt-3.5-turbo".
+- `:call chatgpt#SetKeyFile(keyfile)`: set the path to your OpenAI API key file. The default path is "$HOME/.openai.key".
 
-To chat with ChatGPT, simply type `<leader>C` in Normal mode. This will open a prompt where you can type your message to the model. Once you press Enter, the model's response will be shown in a new buffer named "__chatgpt__".
+## Configuration
 
-### Customization
+The plugin provides some example key mappings that can be used to quickly initiate a chat session with a specific prompt. To add your own key mappings, use the command :call chatgpt#AddConfig(key, content). Replace "key" with the key mapping you want to use and "content" with the prompt you want to start the chat session with. The prompt can contain a "&" symbol, which will be replaced with the currently selected text (if any) when the key mapping is used.
 
-The ChatGPT plugin supports a number of customization options. These can be set in your `~/.vimrc` file using the following commands:
+Example configuration:
 
-- `chatgpt#SetKeyFile(keyfile)`: Sets the path to your OpenAI API key file.
-- `chatgpt#SetModel(model)`: Sets the name of the ChatGPT model to use.
+```vim
+nnoremap <silent><leader>cg :call chatgpt#Chat()<cr>
+nnoremap <silent><leader>cN :call chatgpt#LoadSession()<cr>
+nnoremap <silent><leader>cD :call chatgpt#DeleteSession()<cr>
 
-In addition, you can define new mappings for visual mode using the `chatgpt#AddConfig(key, content)` function. For example, the following command creates a new mapping that sends the selected text to ChatGPT:
-
+call chatgpt#AddConfig('<leader>ce', 'Please explain the following code: &')
+call chatgpt#AddConfig('<leader>cd', 'Is there anything wrong with the following code: &')
+call chatgpt#AddConfig('<leader>cpp', 'Please implement the following functionality in C++: &')
+call chatgpt#AddConfig('<leader>cgo', 'Please implement the following functionality in Go: &')
+call chatgpt#AddConfig('<leader>cpy', 'Please implement the following functionality in Python: &')
+call chatgpt#AddConfig('<leader>ca', '&')
+call chatgpt#AddConfig('<leader>cw', 'Write an article on "&" using markdown')
+call chatgpt#AddConfig('<leader>c?', 'What is &?')
+call chatgpt#AddConfig('<leader>ch', 'How do I &?')
 ```
-call chatgpt#AddConfig('<leader>g', 'Somebody said: &')
-```
 
-Now, in visual mode, you can select some text and then type `<leader>g` to send it to ChatGPT with the message "Somebody said: <selected text>". The `&` placeholder will be replaced with the actual selected text.
+License
 
-## License
+The ChatGPT Vim Plugin is released under the MIT License. See LICENSE file for details.
 
-This plugin is released under the MIT License. See LICENSE file for more details.
-
---------------------------------------------------
