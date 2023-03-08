@@ -11,7 +11,7 @@ function! chatgpt#addContent(content, addheader=1)
         enew
         file __chatgpt__
         let index = bufnr('%')
-        if addheader != 1
+        if a:addheader != 1
             call append(line('$'), '- ChatGPT Vim Plugin')
             call append(line('$'), '- SkyFire')
             call append(line('$'), '- https://github.com/skyfireitdiy/chatgpt')
