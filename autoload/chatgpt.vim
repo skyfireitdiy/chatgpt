@@ -134,8 +134,8 @@ function! chatgpt#LoadSession()
     endif
     call chatgpt#wipeBuf()
     call system("mkdir -p ~/.chatgpt")
-    let g:currentSession = a:session
-    let sessionFile = chatgpt#sessionFileName(a:session)
+    let g:currentSession = session
+    let sessionFile = chatgpt#sessionFileName(session)
     if filereadable(sessionFile)
         let data = readfile(sessionFile)
         call chatgpt#addContent(data, 0)
