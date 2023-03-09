@@ -16,6 +16,7 @@ To start a new chat session, you can use the `:call chatgpt#Chat()` command. It 
 
 - `:call chatgpt#LoadSession()`: load an existing chat session.
 - `:call chatgpt#DeleteSession()`: delete an existing chat session.
+- `:call chatgpt#CloseSession()`: close current chat session.
 - `:call chatgpt#SetModel(model)`: set the GPT model to use. The default model is "gpt-3.5-turbo".
 - `:call chatgpt#SetKeyFile(keyfile)`: set the path to your OpenAI API key file. The default path is "$HOME/.openai.key".
 - `:call chatgpt#OpenWindow()`: open chat window.
@@ -28,8 +29,10 @@ Example configuration:
 
 ```vim
 nnoremap <silent><leader>cg :call chatgpt#Chat()<cr>
-nnoremap <silent><leader>cN :call chatgpt#LoadSession()<cr>
+nnoremap <silent><leader>cL :call chatgpt#LoadSession()<cr>
 nnoremap <silent><leader>cD :call chatgpt#DeleteSession()<cr>
+nnoremap <silent><leader>cC :call chatgpt#CloseSession()<cr>
+nnoremap <silent><leader>cO :call chatgpt#OpenWindow()<cr>
 
 call chatgpt#AddConfig('<leader>ce', 'Please explain the following code: &')
 call chatgpt#AddConfig('<leader>cd', 'Is there anything wrong with the following code: &')

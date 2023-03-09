@@ -110,14 +110,14 @@ function! chatgpt#sessionFileName(session)
     if a:session == ""
         return ""
     endif
-    return $HOME . "/.chatgpt/" . a:session . ".txt"
+    return $HOME . "/.chatgpt/" . a:session . "_chat"
 endfunction
 
 function! chatgpt#sessionDataName(session)
     if a:session == ""
         return ""
     endif
-    return $HOME . "/.chatgpt/" . a:session . ".json"
+    return $HOME . "/.chatgpt/" . a:session . "_meta"
 endfunction
 
 
@@ -143,7 +143,13 @@ function! chatgpt#LoadSession()
     if filereadable(sessionFile)
         let data = readfile(sessionFile)
         call chatgpt#addContent(data, 0)
+        %s/^\n//
     endif
+endfunction
+
+function! chatgpt#CloseSession()
+    let g:currentSession = ""
+    call chatgpt#wipeBuf()
 endfunction
 
 function! chatgpt#DeleteSession()
@@ -183,13 +189,18 @@ augroup END
 " chatgpt#Chat
 " chatgpt#LoadSession
 " chatgpt#DeleteSession
+" chatgpt#CloseSession()
+" chatgpt#OpenWindow()
 " chatgpt#SetModel
 " chatgpt#SetKeyFile
 
+
 " 示例配置：
 " nnoremap <silent><leader>cg :call chatgpt#Chat()<cr>
-" nnoremap <silent><leader>cN :call chatgpt#LoadSession()<cr>
+" nnoremap <silent><leader>cL :call chatgpt#LoadSession()<cr>
 " nnoremap <silent><leader>cD :call chatgpt#DeleteSession()<cr>
+" nnoremap <silent><leader>cC :call chatgpt#CloseSession()<cr>
+" nnoremap <silent><leader>cO :call chatgpt#OpenWindow()<cr>
 "
 " call chatgpt#AddConfig('<leader>ce', '请解释以下代码：&')
 " call chatgpt#AddConfig('<leader>cd', '以下代码有什么问题吗：&')
