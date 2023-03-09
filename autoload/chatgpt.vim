@@ -5,6 +5,7 @@ let g:currentSession = ""
 
 function! chatgpt#OpenWindow(addheader=1)
     let index = bufnr('__chatgpt__')
+    let new = 0
     if index == -1
         vsplit
         wincmd L
@@ -18,6 +19,7 @@ function! chatgpt#OpenWindow(addheader=1)
             call append(line('$'), '- skyfireitdiy@hotmail.com')
             call append(line('$'), '-------------------------------------------------')
         endif
+        let new = 1
     else
         if index(tabpagebuflist(), index) == -1
             vsplit
@@ -32,12 +34,16 @@ function! chatgpt#OpenWindow(addheader=1)
     setlocal wrap
     setlocal filetype=markdown
     setlocal buftype=nofile
+    return new
 endfunction
 
 function! chatgpt#addContent(content, addheader=1)
-    call chatgpt#OpenWindow(a:addheader)
+    let new = chatgpt#OpenWindow(a:addheader)
     call append(line('$'), a:content)
     let sessionFile = chatgpt#sessionFileName(g:currentSession)
+    if new == 1
+        0delete
+    endif
     if sessionFile != ""
         execute "w! " . sessionFile
     endif
@@ -143,7 +149,6 @@ function! chatgpt#LoadSession()
     if filereadable(sessionFile)
         let data = readfile(sessionFile)
         call chatgpt#addContent(data, 0)
-        %s/^\n//
     endif
 endfunction
 
