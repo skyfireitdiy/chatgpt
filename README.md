@@ -18,6 +18,7 @@ To start a new chat session, you can use the `:call chatgpt#Chat()` command. It 
 - `:call chatgpt#DeleteSession()`: delete an existing chat session.
 - `:call chatgpt#SetModel(model)`: set the GPT model to use. The default model is "gpt-3.5-turbo".
 - `:call chatgpt#SetKeyFile(keyfile)`: set the path to your OpenAI API key file. The default path is "$HOME/.openai.key".
+- `:call chatgpt#OpenWindow()`: open chat window.
 
 ## Configuration
 
