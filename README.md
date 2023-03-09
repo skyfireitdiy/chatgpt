@@ -18,7 +18,7 @@ The session feature enables ChatGPT to have the capability of conducting a conti
 
 You can also use the following commands:
 
-- `:call chatgpt#LoadSession()`: load an existing chat session.
+- `:call chatgpt#LoadSession()`: create a new session or load an existing chat session.
 - `:call chatgpt#DeleteSession()`: delete an existing chat session.
 - `:call chatgpt#CloseSession()`: close current chat session.
 - `:call chatgpt#SetModel(model)`: set the GPT model to use. The default model is "gpt-3.5-turbo".
