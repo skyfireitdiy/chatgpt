@@ -3,7 +3,7 @@ let g:openaiKeyFile = $HOME . "/.openai.key"
 let g:chatgptModel = "gpt-3.5-turbo"
 let g:currentSession = ""
 
-function! chatgpt#addContent(content, addheader=1)
+function! chatgpt#OpenWindow(addheader=1)
     let index = bufnr('__chatgpt__')
     if index == -1
         vsplit
@@ -32,6 +32,10 @@ function! chatgpt#addContent(content, addheader=1)
     setlocal wrap
     setlocal filetype=markdown
     setlocal buftype=nofile
+endfunction
+
+function! chatgpt#addContent(content, addheader=1)
+    call chatgpt#OpenWindow(a:addheader)
     call append(line('$'), a:content)
     let sessionFile = chatgpt#sessionFileName(g:currentSession)
     if sessionFile != ""
