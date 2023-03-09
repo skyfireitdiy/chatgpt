@@ -12,7 +12,11 @@ Plug 'skyfireitdiy/chatgpt'
 
 ## Usage
 
-To start a new chat session, you can use the `:call chatgpt#Chat()` command. It will prompt you to enter the text you want to send to the AI, and show the response in the buffer. You can also use the following commands:
+To ask for some question, you can use the `:call chatgpt#Chat()` command. It will prompt you to enter the text you want to send to the AI, and show the response in the buffer. 
+
+The session feature enables ChatGPT to have the capability of conducting a continuous conversation. Therefore, before asking a question, you can first set up a session.
+
+You can also use the following commands:
 
 - `:call chatgpt#LoadSession()`: load an existing chat session.
 - `:call chatgpt#DeleteSession()`: delete an existing chat session.
