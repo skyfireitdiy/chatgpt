@@ -81,11 +81,11 @@ endfunction
 
 
 function! chatgpt#SetKeyFile(keyfile)
-    let g:openaiKeyFile = keyfile
+    let g:openaiKeyFile = a:keyfile
 endfunction
 
 function! chatgpt#SetModel(model)
-    let g:chatgptModel = model
+    let g:chatgptModel = a:model
 endfunction
 
 function! chatgpt#getSelectedText()
