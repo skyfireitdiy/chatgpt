@@ -20,7 +20,7 @@ function! chatgpt#OpenWindow(addheader=1)
             if g:currentSession != ""
                 call append(line('$'), '- Session: ' . g:currentSession)
             endif
-            call append(line('$'), '================================================')
+            call append(line('$'), '------------------------------------------------')
         endif
         let new = 1
     else
@@ -75,7 +75,7 @@ function! chatgpt#JobStdoutHandler(j, d, e)
     let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
     call chatgpt#addContent('## '.current_datetime.' ChatGPT '.g:chatgptModel.':')
     call chatgpt#addContent(a:d)
-    call chatgpt#addContent('================================================')
+    call chatgpt#addContent('------------------------------------------------')
 endfunction
 
 function! chatgpt#callPythonChat(content)
@@ -90,7 +90,6 @@ function! chatgpt#chatInVim(content)
     let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
     call chatgpt#addContent('# '.current_datetime.' You:')
     call chatgpt#addContent(split(a:content, '\n'))
-    call chatgpt#addContent('------------------------------------------------')
     call chatgpt#callPythonChat(a:content)
 endfunction
 
