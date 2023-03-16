@@ -72,7 +72,8 @@ function! chatgpt#wipeBuf()
 endfunction
 
 function! chatgpt#JobStdoutHandler(j, d, e)
-    call chatgpt#addContent('## ChatGPT '.g:chatgptModel.':')
+    let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
+    call chatgpt#addContent('## '.current_datetime.' ChatGPT '.g:chatgptModel.':')
     call chatgpt#addContent(a:d)
     call chatgpt#addContent('================================================')
 endfunction
@@ -86,7 +87,8 @@ function! chatgpt#callPythonChat(content)
 endfunction
 
 function! chatgpt#chatInVim(content)
-    call chatgpt#addContent('# You:')
+    let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
+    call chatgpt#addContent('# '.current_datetime.' You:')
     call chatgpt#addContent(split(a:content, '\n'))
     call chatgpt#addContent('------------------------------------------------')
     call chatgpt#callPythonChat(a:content)
