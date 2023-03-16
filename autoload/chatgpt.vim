@@ -17,7 +17,10 @@ function! chatgpt#OpenWindow(addheader=1)
             call append(line('$'), '- SkyFire')
             call append(line('$'), '- https://github.com/skyfireitdiy/chatgpt')
             call append(line('$'), '- skyfireitdiy@hotmail.com')
-            call append(line('$'), '-------------------------------------------------')
+            if g:currentSession != ""
+                call append(line('$'), '- Session: ' . g:currentSession)
+            endif
+            call append(line('$'), '================================================')
         endif
         let new = 1
     else
@@ -69,9 +72,9 @@ function! chatgpt#wipeBuf()
 endfunction
 
 function! chatgpt#JobStdoutHandler(j, d, e)
-    call chatgpt#addContent('## Chatgpt:')
+    call chatgpt#addContent('## ChatGPT '.g:chatgptModel.':')
     call chatgpt#addContent(a:d)
-    call chatgpt#addContent('--------------------------------------------------')
+    call chatgpt#addContent('================================================')
 endfunction
 
 function! chatgpt#callPythonChat(content)
@@ -85,7 +88,7 @@ endfunction
 function! chatgpt#chatInVim(content)
     call chatgpt#addContent('# You:')
     call chatgpt#addContent(split(a:content, '\n'))
-    call chatgpt#addContent('--------------------------------------------------')
+    call chatgpt#addContent('------------------------------------------------')
     call chatgpt#callPythonChat(a:content)
 endfunction
 
@@ -153,6 +156,8 @@ function! chatgpt#LoadSession()
     if filereadable(sessionFile)
         let data = readfile(sessionFile)
         call chatgpt#addContent(data, 0)
+    else
+        call chatgpt#OpenWindow()
     endif
 endfunction
 
@@ -177,9 +182,12 @@ function! chatgpt#DeleteSession()
     call system("rm -f " . sessionFile)
 endfunction
 
-
 function! chatgpt#Chat()
-    let content = input("You say:")
+    if g:currentSession == ""
+        let content = input("You say:")
+    else
+        let content = input(g:currentSession . ":")
+    endif
     if content == ""
         return
     endif
