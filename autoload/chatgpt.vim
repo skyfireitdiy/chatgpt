@@ -38,6 +38,7 @@ function! chatgpt#OpenWindow(addheader=1)
 endfunction
 
 function! chatgpt#addContent(content, addheader=1)
+    let isInGpt = bufname('%') == '__chatgpt__'
     let new = chatgpt#OpenWindow(a:addheader)
     call append(line('$'), a:content)
     let sessionFile = chatgpt#sessionFileName(g:currentSession)
@@ -48,6 +49,9 @@ function! chatgpt#addContent(content, addheader=1)
         execute "w! " . sessionFile
     endif
     normal! G
+    if (!isInGpt)
+        wincmd p
+    endif
 endfunction
 
 function! chatgpt#wipeBuf()
