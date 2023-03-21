@@ -71,11 +71,47 @@ function! chatgpt#wipeBuf()
     bwipeout!
 endfunction
 
-function! chatgpt#JobStdoutHandler(j, d, e)
+function! chatgpt#chatJobStdoutHandler(j, d, e)
     let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
     call chatgpt#addContent('## '.current_datetime.' ChatGPT '.g:chatgptModel.':')
     call chatgpt#addContent(a:d)
     call chatgpt#addContent('------------------------------------------------')
+endfunction
+
+function! chatgpt#getCodeBlocks(lines)
+    let ret = []
+    let in_code = 0
+    for line in a:lines
+        if stridx(line, '```') == 0
+            if in_code == 1
+                return ret
+            else
+                let in_code = 1
+            endif
+        else
+            if in_code == 1
+                call add(ret, line)
+            endif
+        endif
+    endfor
+    return ret
+endfunction
+
+function! chatgpt#codeJobStdoutHandler(j, d, e)
+    call chatgpt#chatJobStdoutHandler(a:j, a:d, a:e)
+    let codes = chatgpt#getCodeBlocks(a:d)
+    if len(codes) > 0
+        call append(line('.'), codes)
+    endif
+endfunction
+
+function! chatgpt#codeJobStdoutHandler(j, d, e)
+    call chatgpt#chatJobStdoutHandler(a:j, a:d, a:e)
+    let codes = chatgpt#getCodeBlocks(a:d)
+    if len(codes) > 0
+        normal! gvd
+        call append(line('.'), codes)
+    endif
 endfunction
 
 function! chatgpt#callPythonChat(content)
@@ -83,16 +119,34 @@ function! chatgpt#callPythonChat(content)
     if g:currentSession != ""
         let cmd = cmd . " --session " . shellescape(chatgpt#sessionDataName(g:currentSession))
     endif
-    call jobstart(cmd, {'on_stdout': function("chatgpt#JobStdoutHandler"), 'stdout_buffered': 1})
+    call jobstart(cmd, {'on_stdout': function("chatgpt#chatJobStdoutHandler"), 'stdout_buffered': 1})
 endfunction
 
-function! chatgpt#chatInVim(content)
+
+function! chatgpt#callPythonCodeComplete(content, vmode)
+    let cb = function("chatgpt#codeJobStdoutHandler")
+    if a:vmode
+        let cb = function("chatgpt#codeSelectJobStdoutHandler")
+    endif
+    let cmd = "python3 " . g:chatgptPyScript . " --keyfile " . shellescape(g:openaiKeyFile) . " --model " .shellescape(g:chatgptModel) . " " . shellescape(a:content)
+    call jobstart(cmd, {'on_stdout': cb, 'stdout_buffered': 1})
+endfunction
+
+function! chatgpt#addMyInput(content)
     let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
     call chatgpt#addContent('# '.current_datetime.' You:')
     call chatgpt#addContent(split(a:content, '\n'))
+endfunction
+
+function! chatgpt#chatInVim(content)
+    call chatgpt#addMyInput(a:content)
     call chatgpt#callPythonChat(a:content)
 endfunction
 
+function! chatgpt#chatCodeInVim(content, vmode)
+    call chatgpt#addMyInput(a:content)
+    call chatgpt#callPythonCodeComplete(a:content, a:vmode)
+endfunction
 
 function! chatgpt#SetKeyFile(keyfile)
     let g:openaiKeyFile = a:keyfile
@@ -116,9 +170,21 @@ function! chatgpt#chatViusalContent(content)
     call chatgpt#chatInVim(new_content)
 endfunction
 
+
+function! chatgpt#chatCodeViusalContent(content)
+    let selected = chatgpt#getSelectedText()
+    let new_content = substitute(a:content, '&', selected, 'g')
+    call chatgpt#chatCodeInVim(new_content)
+endfunction
+
 function! chatgpt#AddConfig(key, content)
     execute 'vnoremap <silent> '. a:key . ' :<bs><bs><bs><bs><bs>call chatgpt#chatViusalContent("' . a:content . '")<cr>'
 endfunction
+
+function! chatgpt#AddCodeConfig(key, content)
+    execute 'vnoremap <silent> '. a:key . ' :<bs><bs><bs><bs><bs>call chatgpt#chatCodeViusalContent("' . a:content . '")<cr>'
+endfunction
+
 
 function! chatgpt#sessionFileName(session)
     if a:session == ""
@@ -195,6 +261,26 @@ function! chatgpt#Chat()
     call chatgpt#chatInVim(content)
 endfunction
 
+
+function! chatgpt#ChatCode()
+    let content = input("You say:")
+    if content == ""
+        return
+    endif
+    call chatgpt#chatCodeInVim(content, FALSE)
+endfunction
+
+
+function! chatgpt#ChatSelectedCode()
+    let content = input("You say:")
+    if content == ""
+        return
+    endif
+    let code = chatgpt#getSelectedText()
+    call chatgpt#chatCodeInVim('```' . code . '```' . content, TRUE)
+endfunction
+
+
 augroup chatgptWipeBuf
     autocmd!
     autocmd VimLeave * :call chatgpt#wipeBuf()
@@ -229,3 +315,4 @@ augroup END
 " call chatgpt#AddConfig('<leader>cw', '编写以“&”为题目的文章，以markdown格式输出')
 " call chatgpt#AddConfig('<leader>c?', '什么是&')
 " call chatgpt#AddConfig('<leader>ch', '如何&')
+
