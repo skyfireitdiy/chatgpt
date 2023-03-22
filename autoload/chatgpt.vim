@@ -82,7 +82,7 @@ endfunction
 
 function! chatgpt#inbufChatJobStdoutHandler(j, d, e)
     call chatgpt#outbufChatJobStdoutHandler(a:j, a:d, a:e)
-    let codes = chatgpt#getCodeBlocks(a:d)
+    let codes = a:d
     if len(codes) > 0
         call append(line('.'), codes)
     endif
