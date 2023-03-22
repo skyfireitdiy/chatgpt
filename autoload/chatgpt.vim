@@ -267,7 +267,7 @@ function! chatgpt#OutBufChatVisual()
     call chatgpt#outbufChatInVim("```\n" . text . "\n```\n" . content)
 endfunction
 
-function! chatgpt#InBufChat()
+function! chatgpt#InBufChat(suffix="")
     if g:currentSession == ""
         let content = input("You say:")
     else
@@ -276,11 +276,11 @@ function! chatgpt#InBufChat()
     if content == ""
         return
     endif
-    call chatgpt#inbufChatInVim(content, 0)
+    call chatgpt#inbufChatInVim(content . a:suffix, 0)
 endfunction
 
 
-function! chatgpt#InBufChatVisual()
+function! chatgpt#InBufChatVisual(suffix="")
     if g:currentSession == ""
         let content = input("You say:")
     else
@@ -290,7 +290,7 @@ function! chatgpt#InBufChatVisual()
         return
     endif
     let text = chatgpt#getVisualText()
-    call chatgpt#inbufChatInVim("```\n" . text . "\n```\n" . content . "\n[Do not output any content other than code snippets.]", 1)
+    call chatgpt#inbufChatInVim("```\n" . text . "\n```\n" . content . a:suffix, 1)
 endfunction
 
 
