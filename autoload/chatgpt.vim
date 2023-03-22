@@ -128,7 +128,7 @@ endfunction
 
 function! chatgpt#inbufChatInVim(content, vmode)
     call chatgpt#addMyInput(a:content)
-    call chatgpt#inbufCallPythonChat(a:content . "\n[Do not output any content other than code snippets.]", a:vmode)
+    call chatgpt#inbufCallPythonChat(a:content, a:vmode)
 endfunction
 
 function! chatgpt#SetKeyFile(keyfile)
@@ -290,7 +290,7 @@ function! chatgpt#InBufChatVisual()
         return
     endif
     let text = chatgpt#getVisualText()
-    call chatgpt#inbufChatInVim("```\n" . text . "\n```\n" . content, 1)
+    call chatgpt#inbufChatInVim("```\n" . text . "\n```\n" . content . "\n[Do not output any content other than code snippets.]", 1)
 endfunction
 
 
