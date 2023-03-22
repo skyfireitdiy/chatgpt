@@ -33,6 +33,7 @@ function! chatgpt#OpenWindow(addheader=1)
         endif
     endif
     setlocal noswapfile
+    setlocal paste
     setlocal hidden
     setlocal wrap
     setlocal filetype=markdown
@@ -71,65 +72,47 @@ function! chatgpt#wipeBuf()
     bwipeout!
 endfunction
 
-function! chatgpt#chatJobStdoutHandler(j, d, e)
+function! chatgpt#outbufChatJobStdoutHandler(j, d, e)
     let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
     call chatgpt#addContent('## '.current_datetime.' ChatGPT '.g:chatgptModel.':')
     call chatgpt#addContent(a:d)
     call chatgpt#addContent('------------------------------------------------')
 endfunction
 
-function! chatgpt#getCodeBlocks(lines)
-    let ret = []
-    let in_code = 0
-    for line in a:lines
-        if stridx(line, '```') == 0
-            if in_code == 1
-                return ret
-            else
-                let in_code = 1
-            endif
-        else
-            if in_code == 1
-                call add(ret, line)
-            endif
-        endif
-    endfor
-    return ret
-endfunction
 
-function! chatgpt#codeJobStdoutHandler(j, d, e)
-    call chatgpt#chatJobStdoutHandler(a:j, a:d, a:e)
+function! chatgpt#inbufChatJobStdoutHandler(j, d, e)
+    call chatgpt#outbufChatJobStdoutHandler(a:j, a:d, a:e)
     let codes = chatgpt#getCodeBlocks(a:d)
     if len(codes) > 0
         call append(line('.'), codes)
     endif
 endfunction
 
-function! chatgpt#codeJobStdoutHandler(j, d, e)
-    call chatgpt#chatJobStdoutHandler(a:j, a:d, a:e)
-    let codes = chatgpt#getCodeBlocks(a:d)
+function! chatgpt#inbufVisualJobStdoutHandler(j, d, e)
+    call chatgpt#outbufChatJobStdoutHandler(a:j, a:d, a:e)
+    let codes = a:d
     if len(codes) > 0
         normal! gvd
         call append(line('.'), codes)
     endif
 endfunction
 
-function! chatgpt#callPythonChat(content)
+function! chatgpt#outbufCallPythonChat(content)
     let cmd = "python3 " . g:chatgptPyScript . " --keyfile " . shellescape(g:openaiKeyFile) . " --model " .shellescape(g:chatgptModel) . " " . shellescape(a:content)
     if g:currentSession != ""
         let cmd = cmd . " --session " . shellescape(chatgpt#sessionDataName(g:currentSession))
     endif
-    call jobstart(cmd, {'on_stdout': function("chatgpt#chatJobStdoutHandler"), 'stdout_buffered': 1})
+    call jobstart(cmd, {'on_stdout': function("chatgpt#outbufChatJobStdoutHandler"), 'stdout_buffered': 1})
 endfunction
 
 
-function! chatgpt#callPythonCodeComplete(content, vmode)
-    let cb = function("chatgpt#codeJobStdoutHandler")
-    if a:vmode
-        let cb = function("chatgpt#codeSelectJobStdoutHandler")
-    endif
+function! chatgpt#inbufCallPythonChat(content, vmode)
     let cmd = "python3 " . g:chatgptPyScript . " --keyfile " . shellescape(g:openaiKeyFile) . " --model " .shellescape(g:chatgptModel) . " " . shellescape(a:content)
-    call jobstart(cmd, {'on_stdout': cb, 'stdout_buffered': 1})
+    if a:vmode
+        call jobstart(cmd, {'on_stdout': function("chatgpt#inbufVisualJobStdoutHandler"), 'stdout_buffered': 1})
+    else
+        call jobstart(cmd, {'on_stdout': function("chatgpt#inbufChatJobStdoutHandler"), 'stdout_buffered': 1})
+    endif
 endfunction
 
 function! chatgpt#addMyInput(content)
@@ -138,14 +121,14 @@ function! chatgpt#addMyInput(content)
     call chatgpt#addContent(split(a:content, '\n'))
 endfunction
 
-function! chatgpt#chatInVim(content)
+function! chatgpt#outbufChatInVim(content)
     call chatgpt#addMyInput(a:content)
-    call chatgpt#callPythonChat(a:content)
+    call chatgpt#outbufCallPythonChat(a:content)
 endfunction
 
-function! chatgpt#chatCodeInVim(content, vmode)
+function! chatgpt#inbufChatInVim(content, vmode)
     call chatgpt#addMyInput(a:content)
-    call chatgpt#callPythonCodeComplete(a:content, a:vmode)
+    call chatgpt#inbufCallPythonChat(a:content . "\n[Do not output any content other than code snippets.]", a:vmode)
 endfunction
 
 function! chatgpt#SetKeyFile(keyfile)
@@ -156,7 +139,7 @@ function! chatgpt#SetModel(model)
     let g:chatgptModel = a:model
 endfunction
 
-function! chatgpt#getSelectedText()
+function! chatgpt#getVisualText()
     let save_reg = @a
     normal! gv"ay
     let text = @a
@@ -164,25 +147,17 @@ function! chatgpt#getSelectedText()
     return text
 endfunction
 
-function! chatgpt#chatViusalContent(content)
-    let selected = chatgpt#getSelectedText()
+function! chatgpt#outbufChatViusalContent(content)
+    let selected = chatgpt#getVisualText()
     let new_content = substitute(a:content, '&', selected, 'g')
-    call chatgpt#chatInVim(new_content)
+    call chatgpt#outbufChatInVim(new_content)
 endfunction
 
 
-function! chatgpt#chatCodeViusalContent(content)
-    let selected = chatgpt#getSelectedText()
+function! chatgpt#inbufChatViusalContent(content)
+    let selected = chatgpt#getVisualText()
     let new_content = substitute(a:content, '&', selected, 'g')
-    call chatgpt#chatCodeInVim(new_content)
-endfunction
-
-function! chatgpt#AddConfig(key, content)
-    execute 'vnoremap <silent> '. a:key . ' :<bs><bs><bs><bs><bs>call chatgpt#chatViusalContent("' . a:content . '")<cr>'
-endfunction
-
-function! chatgpt#AddCodeConfig(key, content)
-    execute 'vnoremap <silent> '. a:key . ' :<bs><bs><bs><bs><bs>call chatgpt#chatCodeViusalContent("' . a:content . '")<cr>'
+    call chatgpt#inbufChatInVim(new_content)
 endfunction
 
 
@@ -209,6 +184,20 @@ function! chatgpt#safeSession(str)
     let pathstr = substitute(pathstr, '_$', '', '')
     let pathstr = tolower(pathstr)
     return pathstr
+endfunction
+
+" ---------------------- 下面是对外接口 ----------------------
+
+function! chatgpt#AddConfig(key, content)
+    call chatgpt#AddOutBufConfig(a:key, a:content)
+endfunction
+
+function! chatgpt#AddOutBufConfig(key, content)
+    execute 'vnoremap <silent> '. a:key . ' :<bs><bs><bs><bs><bs>call chatgpt#outbufChatViusalContent("' . a:content . '")<cr>'
+endfunction
+
+function! chatgpt#AddInBufConfig(key, content)
+    execute 'vnoremap <silent> '. a:key . ' :<bs><bs><bs><bs><bs>call chatgpt#inbufChatViusalContent("' . a:content . '")<cr>'
 endfunction
 
 function! chatgpt#LoadSession()
@@ -249,7 +238,7 @@ function! chatgpt#DeleteSession()
     call system("rm -f " . sessionFile)
 endfunction
 
-function! chatgpt#Chat()
+function! chatgpt#OutBufChat()
     if g:currentSession == ""
         let content = input("You say:")
     else
@@ -258,26 +247,50 @@ function! chatgpt#Chat()
     if content == ""
         return
     endif
-    call chatgpt#chatInVim(content)
+    call chatgpt#outbufChatInVim(content)
 endfunction
 
+function! chatgpt#Chat()
+    call chatgpt#OutbufChat()
+endfunction
 
-function! chatgpt#ChatCode()
-    let content = input("You say:")
+function! chatgpt#OutBufChatVisual()
+    if g:currentSession == ""
+        let content = input("You say:")
+    else
+        let content = input(g:currentSession . ":")
+    endif
     if content == ""
         return
     endif
-    call chatgpt#chatCodeInVim(content, FALSE)
+    let text = chatgpt#getVisualText()
+    call chatgpt#outbufChatInVim("```\n" . text . "\n```\n" . content)
 endfunction
 
-
-function! chatgpt#ChatSelectedCode()
-    let content = input("You say:")
+function! chatgpt#InBufChat()
+    if g:currentSession == ""
+        let content = input("You say:")
+    else
+        let content = input(g:currentSession . ":")
+    endif
     if content == ""
         return
     endif
-    let code = chatgpt#getSelectedText()
-    call chatgpt#chatCodeInVim('```' . code . '```' . content, TRUE)
+    call chatgpt#inbufChatInVim(content, 0)
+endfunction
+
+
+function! chatgpt#InBufChatVisual()
+    if g:currentSession == ""
+        let content = input("You say:")
+    else
+        let content = input(g:currentSession . ":")
+    endif
+    if content == ""
+        return
+    endif
+    let text = chatgpt#getVisualText()
+    call chatgpt#inbufChatInVim("```\n" . text . "\n```\n" . content, 1)
 endfunction
 
 
@@ -290,29 +303,56 @@ augroup END
 
 
 " 公开函数：
-" chatgpt#Chat
-" chatgpt#LoadSession
-" chatgpt#DeleteSession
-" chatgpt#CloseSession()
-" chatgpt#OpenWindow()
-" chatgpt#SetModel
-" chatgpt#SetKeyFile
-
-
+"    chatgpt#AddConfig(key, content)
+"        添加一个新的配置到插件中。配置是一个键值对，其中键是表示键绑定的字符串，值是表示要发送到OpenAI API的内容的字符串。
+"    chatgpt#AddInBufConfig(key, content)
+"        添加一个新的配置到插件中。配置是一个键值对，其中键是表示键绑定的字符串，值是表示要发送到OpenAI API的内容的字符串。此函数用于缓冲区内模式。
+"    chatgpt#AddOutBufConfig(key, content)
+"        添加一个新的配置到插件中。配置是一个键值对，其中键是表示键绑定的字符串，值是表示要发送到OpenAI API的内容的字符串。此函数用于缓冲区外模式。
+"    chatgpt#Chat()
+"        开始一个新的聊天会话。
+"    chatgpt#CloseSession()
+"        关闭当前的聊天会话。
+"    chatgpt#DeleteSession()
+"        删除聊天会话。
+"    chatgpt#InBufChat()
+"        在缓冲区内模式下向OpenAI API发送消息。
+"    chatgpt#InBufChatVisual()
+"        在缓冲区内模式下向OpenAI API发送消息，包括所选文本。
+"    chatgpt#LoadSession()
+"        加载聊天会话。
+"    chatgpt#OpenWindow()
+"        打开聊天窗口。
+"    chatgpt#OutBufChat()
+"        在缓冲区外模式下向OpenAI API发送消息。
+"    chatgpt#OutBufChatVisual()
+"        在缓冲区外模式下向OpenAI API发送消息，包括所选文本。
+"    chatgpt#SetKeyFile(keyfile)
+"        设置OpenAI API密钥文件的路径。
+"    chatgpt#SetModel(model)
+"        设置要使用的GPT模型的名称。
+"
 " 示例配置：
-" nnoremap <silent><leader>cg :call chatgpt#Chat()<cr>
+" nnoremap <silent><leader>cg :call chatgpt#OutBufChat()<cr>
 " nnoremap <silent><leader>cL :call chatgpt#LoadSession()<cr>
 " nnoremap <silent><leader>cD :call chatgpt#DeleteSession()<cr>
 " nnoremap <silent><leader>cC :call chatgpt#CloseSession()<cr>
 " nnoremap <silent><leader>cO :call chatgpt#OpenWindow()<cr>
-"
-" call chatgpt#AddConfig('<leader>ce', '请解释以下代码：&')
-" call chatgpt#AddConfig('<leader>cd', '以下代码有什么问题吗：&')
-" call chatgpt#AddConfig('<leader>cpp', '请用c++实现以下功能：&')
-" call chatgpt#AddConfig('<leader>cgo', '请用go实现以下功能：&')
-" call chatgpt#AddConfig('<leader>cpy', '请用python实现以下功能：&')
-" call chatgpt#AddConfig('<leader>ca', '&')
-" call chatgpt#AddConfig('<leader>cw', '编写以“&”为题目的文章，以markdown格式输出')
-" call chatgpt#AddConfig('<leader>c?', '什么是&')
-" call chatgpt#AddConfig('<leader>ch', '如何&')
+
+" nnoremap <silent><leader>ck :call chatgpt#InBufChat()<cr>
+
+" vnoremap <silent><leader>cg <ESC>:call chatgpt#OutBufChatVisual()<cr>
+" vnoremap <silent><leader>ck <ESC>:call chatgpt#InBufChatVisual()<cr>
+
+
+" call chatgpt#AddOutBufConfig('<leader>ce', '请解释以下代码：&')
+" call chatgpt#AddOutBufConfig('<leader>cd', '以下代码有什么问题吗：&')
+" call chatgpt#AddOutBufConfig('<leader>cpp', '请用c++实现以下功能：&')
+" call chatgpt#AddOutBufConfig('<leader>cgo', '请用go实现以下功能：&')
+" call chatgpt#AddOutBufConfig('<leader>cpy', '请用python实现以下功能：&')
+" call chatgpt#AddOutBufConfig('<leader>ca', '&')
+" call chatgpt#AddOutBufConfig('<leader>cw', '编写以“&”为题目的文章，以markdown格式输出')
+" call chatgpt#AddOutBufConfig('<leader>c?', '什么是&')
+" call chatgpt#AddOutBufConfig('<leader>ch', '如何&')
+
 

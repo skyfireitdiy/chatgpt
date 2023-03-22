@@ -18,12 +18,36 @@ The session feature enables ChatGPT to have the capability of conducting a conti
 
 You can also use the following commands:
 
-- `:call chatgpt#LoadSession()`: create a new session or load an existing chat session.
-- `:call chatgpt#DeleteSession()`: delete an existing chat session.
-- `:call chatgpt#CloseSession()`: close current chat session.
-- `:call chatgpt#SetModel(model)`: set the GPT model to use. The default model is "gpt-3.5-turbo".
-- `:call chatgpt#SetKeyFile(keyfile)`: set the path to your OpenAI API key file. The default path is "$HOME/.openai.key".
-- `:call chatgpt#OpenWindow()`: open chat window.
+-    chatgpt#AddConfig(key, content)
+        Add a new configuration to the plugin. The configuration is a key-value pair, where the key is a string that represents the keybinding, and the value is a string that represents the content to be sent to the OpenAI API.
+-    chatgpt#AddInBufConfig(key, content)
+        Add a new configuration to the plugin. The configuration is a key-value pair, where the key is a string that represents the keybinding, and the value is a string that represents the content to be sent to the OpenAI API. This function is used for in-buffer mode.
+-    chatgpt#AddOutBufConfig(key, content)
+        Add a new configuration to the plugin. The configuration is a key-value pair, where the key is a string that represents the keybinding, and the value is a string that represents the content to be sent to the OpenAI API. This function is used for out-buffer mode.
+-    chatgpt#Chat()
+        Start a new chat session.
+-    chatgpt#CloseSession()
+        Close the current chat session.
+-    chatgpt#DeleteSession()
+        Delete a chat session.
+-    chatgpt#InBufChat()
+        Send a message to the OpenAI API in in-buffer mode.
+-    chatgpt#InBufChatVisual()
+        Send a message to the OpenAI API in in-buffer mode, including the selected text.
+-    chatgpt#LoadSession()
+        Load a chat session.
+-    chatgpt#OpenWindow()
+        Open the chat window.
+-    chatgpt#OutBufChat()
+        Send a message to the OpenAI API in out-buffer mode.
+-    chatgpt#OutBufChatVisual()
+        Send a message to the OpenAI API in out-buffer mode, including the selected text.
+-    chatgpt#SetKeyFile(keyfile)
+        Set the path to the OpenAI API key file.
+-    chatgpt#SetModel(model)
+        Set the name of the GPT model to use.
+
+The difference between inbuf and outbuf is that the content of inbuf will be directly inserted into the current buffer.
 
 ## Configuration
 
@@ -32,21 +56,27 @@ The plugin provides some example key mappings that can be used to quickly initia
 Example configuration:
 
 ```vim
-nnoremap <silent><leader>cg :call chatgpt#Chat()<cr>
+nnoremap <silent><leader>cg :call chatgpt#OutBufChat()<cr>
 nnoremap <silent><leader>cL :call chatgpt#LoadSession()<cr>
 nnoremap <silent><leader>cD :call chatgpt#DeleteSession()<cr>
 nnoremap <silent><leader>cC :call chatgpt#CloseSession()<cr>
 nnoremap <silent><leader>cO :call chatgpt#OpenWindow()<cr>
 
-call chatgpt#AddConfig('<leader>ce', 'Please explain the following code: &')
-call chatgpt#AddConfig('<leader>cd', 'Is there anything wrong with the following code: &')
-call chatgpt#AddConfig('<leader>cpp', 'Please implement the following functionality in C++: &')
-call chatgpt#AddConfig('<leader>cgo', 'Please implement the following functionality in Go: &')
-call chatgpt#AddConfig('<leader>cpy', 'Please implement the following functionality in Python: &')
-call chatgpt#AddConfig('<leader>ca', '&')
-call chatgpt#AddConfig('<leader>cw', 'Write an article on "&" using markdown')
-call chatgpt#AddConfig('<leader>c?', 'What is &?')
-call chatgpt#AddConfig('<leader>ch', 'How do I &?')
+nnoremap <silent><leader>ck :call chatgpt#InBufChat()<cr>
+
+vnoremap <silent><leader>cg <ESC>:call chatgpt#OutBufChatVisual()<cr>
+vnoremap <silent><leader>ck <ESC>:call chatgpt#InBufChatVisual()<cr>
+
+
+call chatgpt#AddOutBufConfig('<leader>ce', 'Please explain the following code: &')
+call chatgpt#AddOutBufConfig('<leader>cd', 'Is there any problem with the following code: &')
+call chatgpt#AddOutBufConfig('<leader>cpp', 'Please implement the following function in c++: &')
+call chatgpt#AddOutBufConfig('<leader>cgo', 'Please implement the following function in go: &')
+call chatgpt#AddOutBufConfig('<leader>cpy', 'Please implement the following function in python: &')
+call chatgpt#AddOutBufConfig('<leader>ca', '&')
+call chatgpt#AddOutBufConfig('<leader>cw', 'Write an article with "&" as the topic and output it in markdown format')
+call chatgpt#AddOutBufConfig('<leader>c?', 'What is &')
+call chatgpt#AddOutBufConfig('<leader>ch', 'How to &')
 ```
 
 License
