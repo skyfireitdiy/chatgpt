@@ -13,6 +13,7 @@ function! chatgpt#OpenWindow(addheader=1)
         file __chatgpt__
         let index = bufnr('%')
         if a:addheader == 1
+            setlocal paste
             call append(line('$'), '- ChatGPT Vim Plugin')
             call append(line('$'), '- SkyFire')
             call append(line('$'), '- https://github.com/skyfireitdiy/chatgpt')
@@ -21,6 +22,7 @@ function! chatgpt#OpenWindow(addheader=1)
                 call append(line('$'), '- Session: ' . g:currentSession)
             endif
             call append(line('$'), '------------------------------------------------')
+            setlocal nopaste
         endif
         let new = 1
     else
@@ -33,7 +35,6 @@ function! chatgpt#OpenWindow(addheader=1)
         endif
     endif
     setlocal noswapfile
-    setlocal paste
     setlocal hidden
     setlocal wrap
     setlocal filetype=markdown
@@ -44,7 +45,9 @@ endfunction
 function! chatgpt#addContent(content, addheader=1)
     let isInGpt = bufname('%') == '__chatgpt__'
     let new = chatgpt#OpenWindow(a:addheader)
+    setlocal paste
     call append(line('$'), a:content)
+    setlocal nopaste
     let sessionFile = chatgpt#sessionFileName(g:currentSession)
     if new == 1
         0delete
