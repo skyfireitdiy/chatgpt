@@ -4,13 +4,13 @@ let g:chatgptModel = "gpt-3.5-turbo"
 let g:currentSession = ""
 
 function! chatgpt#OpenWindow(addheader=1)
-    let index = bufnr('__chatgpt__')
+    let index = bufnr('__ChatGPT__')
     let new = 0
     if index == -1
         vsplit
         wincmd L
         enew
-        file __chatgpt__
+        file __ChatGPT__
         let index = bufnr('%')
         if a:addheader == 1
             setlocal paste
@@ -43,15 +43,16 @@ function! chatgpt#OpenWindow(addheader=1)
 endfunction
 
 function! chatgpt#addContent(content, addheader=1)
-    let isInGpt = bufname('%') == '__chatgpt__'
+    let isInGpt = bufname('%') == '__ChatGPT__'
     let new = chatgpt#OpenWindow(a:addheader)
     setlocal paste
-    call append(line('$'), a:content)
+    if new
+        call append(0, a:content)
+    else
+        call append(line('.'), a:content)
+    endif
     setlocal nopaste
     let sessionFile = chatgpt#sessionFileName(g:currentSession)
-    if new == 1
-        0delete
-    endif
     if sessionFile != ""
         execute "w! " . sessionFile
     endif
@@ -62,7 +63,7 @@ function! chatgpt#addContent(content, addheader=1)
 endfunction
 
 function! chatgpt#wipeBuf()
-    let index = bufnr('__chatgpt__')
+    let index = bufnr('__ChatGPT__')
     if index == -1
         return
     endif
@@ -296,6 +297,15 @@ function! chatgpt#InBufChatVisual(suffix="")
     call chatgpt#inbufChatInVim("```\n" . text . "\n```\n" . content . a:suffix, 1)
 endfunction
 
+function! chatgpt#TruncSession()
+    if g:currentSession == ""
+        return
+    endif
+    call system("rm ". chatgpt#sessionDataName(g:currentSession))
+    call chatgpt#addContent("# SPLIT SESSION", 0)
+    call chatgpt#addContent("----------------------------------", 0)
+endfunction
+
 
 augroup chatgptWipeBuf
     autocmd!
@@ -303,59 +313,4 @@ augroup chatgptWipeBuf
     autocmd VimEnter * :call chatgpt#wipeBuf()
     autocmd SessionLoadPost * :call chatgpt#wipeBuf()
 augroup END
-
-
-" 公开函数：
-"    chatgpt#AddConfig(key, content)
-"        添加一个新的配置到插件中。配置是一个键值对，其中键是表示键绑定的字符串，值是表示要发送到OpenAI API的内容的字符串。
-"    chatgpt#AddInBufConfig(key, content)
-"        添加一个新的配置到插件中。配置是一个键值对，其中键是表示键绑定的字符串，值是表示要发送到OpenAI API的内容的字符串。此函数用于缓冲区内模式。
-"    chatgpt#AddOutBufConfig(key, content)
-"        添加一个新的配置到插件中。配置是一个键值对，其中键是表示键绑定的字符串，值是表示要发送到OpenAI API的内容的字符串。此函数用于缓冲区外模式。
-"    chatgpt#Chat()
-"        开始一个新的聊天会话。
-"    chatgpt#CloseSession()
-"        关闭当前的聊天会话。
-"    chatgpt#DeleteSession()
-"        删除聊天会话。
-"    chatgpt#InBufChat()
-"        在缓冲区内模式下向OpenAI API发送消息。
-"    chatgpt#InBufChatVisual()
-"        在缓冲区内模式下向OpenAI API发送消息，包括所选文本。
-"    chatgpt#LoadSession()
-"        加载聊天会话。
-"    chatgpt#OpenWindow()
-"        打开聊天窗口。
-"    chatgpt#OutBufChat()
-"        在缓冲区外模式下向OpenAI API发送消息。
-"    chatgpt#OutBufChatVisual()
-"        在缓冲区外模式下向OpenAI API发送消息，包括所选文本。
-"    chatgpt#SetKeyFile(keyfile)
-"        设置OpenAI API密钥文件的路径。
-"    chatgpt#SetModel(model)
-"        设置要使用的GPT模型的名称。
-"
-" 示例配置：
-" nnoremap <silent><leader>cg :call chatgpt#OutBufChat()<cr>
-" nnoremap <silent><leader>cL :call chatgpt#LoadSession()<cr>
-" nnoremap <silent><leader>cD :call chatgpt#DeleteSession()<cr>
-" nnoremap <silent><leader>cC :call chatgpt#CloseSession()<cr>
-" nnoremap <silent><leader>cO :call chatgpt#OpenWindow()<cr>
-
-" nnoremap <silent><leader>ck :call chatgpt#InBufChat("[Do not output any content other than code snippets.]")<cr>
-
-" vnoremap <silent><leader>cg <ESC>:call chatgpt#OutBufChatVisual()<cr>
-" vnoremap <silent><leader>ck <ESC>:call chatgpt#InBufChatVisual("[Do not output any content other than code snippets.]")<cr>
-
-
-" call chatgpt#AddOutBufConfig('<leader>ce', '请解释以下代码：&')
-" call chatgpt#AddOutBufConfig('<leader>cd', '以下代码有什么问题吗：&')
-" call chatgpt#AddOutBufConfig('<leader>cpp', '请用c++实现以下功能：&')
-" call chatgpt#AddOutBufConfig('<leader>cgo', '请用go实现以下功能：&')
-" call chatgpt#AddOutBufConfig('<leader>cpy', '请用python实现以下功能：&')
-" call chatgpt#AddOutBufConfig('<leader>ca', '&')
-" call chatgpt#AddOutBufConfig('<leader>cw', '编写以“&”为题目的文章，以markdown格式输出')
-" call chatgpt#AddOutBufConfig('<leader>c?', '什么是&')
-" call chatgpt#AddOutBufConfig('<leader>ch', '如何&')
-
 
