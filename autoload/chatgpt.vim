@@ -11,6 +11,11 @@ function! chatgpt#OpenWindow(addheader=1)
         wincmd L
         enew
         file __ChatGPT__
+        setlocal noswapfile
+        setlocal hidden
+        setlocal wrap
+        setlocal filetype=markdown
+        setlocal buftype=nofile
         let index = bufnr('%')
         if a:addheader == 1
             setlocal paste
@@ -34,11 +39,6 @@ function! chatgpt#OpenWindow(addheader=1)
             call win_gotoid(win_findbuf(index)[0])
         endif
     endif
-    setlocal noswapfile
-    setlocal hidden
-    setlocal wrap
-    setlocal filetype=markdown
-    setlocal buftype=nofile
     return new
 endfunction
 
