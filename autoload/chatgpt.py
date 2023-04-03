@@ -30,7 +30,7 @@ def chat(model, content, session):
     else:
         msgs = [msg]
     try:
-        response_msg = openai.ChatCompletion.create(model=model, messages=msgs).choices[0].message
+        response_msg = openai.ChatCompletion.create(model=model, messages=msgs, stop=r'@@@').choices[0].message
     except Exception as e:
         return e
     msgs.append(response_msg)

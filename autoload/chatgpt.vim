@@ -268,7 +268,7 @@ function! chatgpt#OutBufChatVisual()
         return
     endif
     let text = chatgpt#getVisualText()
-    call chatgpt#outbufChatInVim("```\n" . text . "\n```\n" . content)
+    call chatgpt#outbufChatInVim(text . "\n@@@n" . content)
 endfunction
 
 function! chatgpt#InBufChat(suffix="")
@@ -294,7 +294,7 @@ function! chatgpt#InBufChatVisual(suffix="")
         return
     endif
     let text = chatgpt#getVisualText()
-    call chatgpt#inbufChatInVim("```\n" . text . "\n```\n" . content . a:suffix, 1)
+    call chatgpt#inbufChatInVim( text . "\n@@@\n" . content . a:suffix, 1)
 endfunction
 
 function! chatgpt#TruncSession()
