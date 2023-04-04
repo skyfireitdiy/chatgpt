@@ -268,7 +268,7 @@ function! chatgpt#OutBufChatVisual()
         return
     endif
     let text = chatgpt#getVisualText()
-    call chatgpt#outbufChatInVim(text . "\n@@@n" . content)
+    call chatgpt#outbufChatInVim(text . "\n@@@\n" . content)
 endfunction
 
 function! chatgpt#InBufChat(suffix="")
