@@ -49,7 +49,7 @@ function! chatgpt#addContent(content, addheader=1)
     if new
         call append(0, a:content)
     else
-        call append(line('.'), a:content)
+        call append(line('$'), a:content)
     endif
     setlocal nopaste
     let sessionFile = chatgpt#sessionFileName(g:currentSession)
@@ -88,7 +88,7 @@ function! chatgpt#inbufChatJobStdoutHandler(j, d, e)
     call chatgpt#outbufChatJobStdoutHandler(a:j, a:d, a:e)
     let codes = a:d
     if len(codes) > 0
-        call append(line('.'), codes)
+        call append(line('$'), codes)
     endif
 endfunction
 
@@ -97,7 +97,7 @@ function! chatgpt#inbufVisualJobStdoutHandler(j, d, e)
     let codes = a:d
     if len(codes) > 0
         normal! gvd
-        call append(line('.'), codes)
+        call append(line('$'), codes)
     endif
 endfunction
 
