@@ -46,7 +46,11 @@ function! chatgpt#addContent(content, addheader=1)
     let isInGpt = bufname('%') == '__ChatGPT__'
     let new = chatgpt#OpenWindow(a:addheader)
     setlocal paste
-    call append(line('$'), a:content)
+    if new
+        call append(0, a:content)
+    else
+        call append(line('$'), a:content)
+    endif
     setlocal nopaste
     let sessionFile = chatgpt#sessionFileName(g:currentSession)
     if sessionFile != ""
