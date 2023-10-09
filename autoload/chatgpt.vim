@@ -1,7 +1,28 @@
-let g:chatgptPyScript = expand("<sfile>:p:h") . "/chatgpt.py"
-let g:openaiKeyFile = $HOME . "/.openai.key"
-let g:chatgptModel = "gpt-3.5-turbo"
 let g:currentSession = ""
+
+let g:chatgptSourceConfig = []
+
+function! chatgpt#AddSourceConfig(config)
+    call add(g:chatgptSourceConfig, a:config)
+endfunction
+
+let g:chatgptConfigIndex = 0
+
+function! chatgpt#SetConfigIndex()
+    let msg = ""
+    for i in range(len(g:chatgptSourceConfig))
+        let msg = msg . i . ". " . g:chatgptSourceConfig[i][1] . "\n"
+    endfor
+    let msg = msg . "Please choose a model:"
+    let tmpInput = input(msg)
+    " convert to number
+    let tmpInput = str2nr(tmpInput)
+    if tmpInput >= 0 && tmpInput < len(g:chatgptSourceConfig)
+        let g:chatgptConfigIndex = tmpInput
+    else
+        echom "Invalid index"
+    endif
+endfunction
 
 function! chatgpt#OpenWindow(addheader=1)
     let index = bufnr('__ChatGPT__')
@@ -74,7 +95,7 @@ endfunction
 
 function! chatgpt#outbufChatJobStdoutHandler(j, d, e)
     let current_datetime = strftime("%Y-%m-%d %H:%M:%S")
-    call chatgpt#addContent('## '.current_datetime.' ChatGPT '.g:chatgptModel.':')
+    call chatgpt#addContent('## '.current_datetime. " " . g:chatgptSourceConfig[g:chatgptConfigIndex][1] .':')
     call chatgpt#addContent(a:d)
     call chatgpt#addContent('------------------------------------------------')
 endfunction
@@ -98,7 +119,7 @@ function! chatgpt#inbufVisualJobStdoutHandler(j, d, e)
 endfunction
 
 function! chatgpt#outbufCallPythonChat(content)
-    let cmd = "python3 " . g:chatgptPyScript . " --keyfile " . shellescape(g:openaiKeyFile) . " --model " .shellescape(g:chatgptModel) . " " . shellescape(a:content)
+    let cmd = "python3 " . g:chatgptSourceConfig[g:chatgptConfigIndex][0]  . " --model " .shellescape(g:chatgptSourceConfig[g:chatgptConfigIndex][1]) . " " . shellescape(a:content)
     if g:currentSession != ""
         let cmd = cmd . " --session " . shellescape(chatgpt#sessionDataName(g:currentSession))
     endif
@@ -107,7 +128,7 @@ endfunction
 
 
 function! chatgpt#inbufCallPythonChat(content, vmode)
-    let cmd = "python3 " . g:chatgptPyScript . " --keyfile " . shellescape(g:openaiKeyFile) . " --model " .shellescape(g:chatgptModel) . " " . shellescape(a:content)
+    let cmd = "python3 " . g:chatgptSourceConfig[g:chatgptConfigIndex][0]  . " --model " .shellescape(g:chatgptSourceConfig[g:chatgptConfigIndex][1]) . " " . shellescape(a:content)
     if a:vmode
         call jobstart(cmd, {'on_stdout': function("chatgpt#inbufVisualJobStdoutHandler"), 'stdout_buffered': 1})
     else
@@ -131,9 +152,6 @@ function! chatgpt#inbufChatInVim(content, vmode)
     call chatgpt#inbufCallPythonChat(a:content, a:vmode)
 endfunction
 
-function! chatgpt#SetKeyFile(keyfile)
-    let g:openaiKeyFile = a:keyfile
-endfunction
 
 function! chatgpt#SetModel(model)
     let g:chatgptModel = a:model
@@ -310,3 +328,6 @@ augroup chatgptWipeBuf
     autocmd SessionLoadPost * :call chatgpt#wipeBuf()
 augroup END
 
+call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/chatgpt.py",  "gpt-3.5-turbo"])
+call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/qianfan.py",  "ErnieBot"])
+call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/qianfan.py",  "ErnieBot-turbo"])

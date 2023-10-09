@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import argparse
 import json
@@ -8,17 +9,10 @@ except Exception as e:
     import openai
 
 
-keyFile = os.path.join(os.environ["HOME"], ".openai.key")
-
-def readOpenAiApiKey():
-    with open(keyFile, "r") as f:
-        openai.api_key = f.read().strip()
-
 def chat(model, content, session):
-    if openai.api_key is None:
-        return "please put your apikey to %s" % keyFile
+    openai.api_key = os.environ["OPENAI_API_KEY"]
     msg = {"role": "user", "content": content}
-    if session != "":
+    if session:
         try:
             with open(session, "r") as f:
                 msgs = json.load(f)
@@ -34,23 +28,20 @@ def chat(model, content, session):
     except Exception as e:
         return e
     msgs.append(response_msg)
-    if session!= "":
+    if session:
         try:
             with open(session, "w") as f:
                 json.dump(msgs, f)
-        except Exception:
-            pass
+        except Exception as e:
+            return e
     return response_msg.content
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--keyfile", default=keyFile)
-    parser.add_argument("--model", default="gpt-3.5-turbo")
+    parser.add_argument("--model", required=True)
     parser.add_argument("--session", default="")
     parser.add_argument("content")
     result = parser.parse_args()
-    if os.path.exists(result.keyfile):
-        readOpenAiApiKey()
     print(chat(result.model,result.content, result.session))
 
 if __name__ == "__main__":
