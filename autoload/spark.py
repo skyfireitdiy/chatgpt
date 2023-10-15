@@ -14,6 +14,7 @@ from wsgiref.handlers import format_date_time
 import argparse
 import subprocess
 import os
+from chatcore import *
 
 
 def install_package(package_name):
@@ -145,17 +146,8 @@ def Request(appid, secret, apikey, session, content, model):
         thread.start_new_thread(run, (ws,))
 
     msg = {"role": "user", "content": content}
-    if session != "":
-        try:
-            with open(session, "r") as f:
-                msgs = json.load(f)
-                if len(msgs) > 1000:
-                    msgs = msgs[:1000]
-                msgs.append(msg)
-        except Exception:
-            msgs = [msg]
-    else:
-        msgs = [msg]
+    msgs = load_session(session)
+    msgs.append(msg)
 
     ws = websocket.WebSocketApp(
         ws_url, on_message=on_message, on_error=on_error, on_close=on_close, on_open=on_open)
@@ -166,14 +158,9 @@ def Request(appid, secret, apikey, session, content, model):
     ws.max_tokens = 4096
     ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
-    msg = {"role": "assiant", "content": response}
+    msg = {"role": "assistant", "content": response}
     msgs.append(msg)
-    if session != "":
-        try:
-            with open(session, "w") as f:
-                json.dump(msgs, f)
-        except Exception as e:
-            return e
+    save_session(session, msgs)
 
 
 def main():

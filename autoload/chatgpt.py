@@ -12,28 +12,14 @@ except Exception as e:
 def chat(model, content, session):
     openai.api_key = os.environ["OPENAI_API_KEY"]
     msg = {"role": "user", "content": content}
-    if session:
-        try:
-            with open(session, "r") as f:
-                msgs = json.load(f)
-                if len(msgs) > 1000:
-                    msgs = msgs[:1000]
-                msgs.append(msg)
-        except Exception:
-            msgs = [msg]
-    else:
-        msgs = [msg]
+    msgs = load_session(session)
+    msgs.append(msg)
     try:
         response_msg = openai.ChatCompletion.create(model=model, messages=msgs, stop=r'@@@').choices[0].message
     except Exception as e:
         return e
     msgs.append(response_msg)
-    if session:
-        try:
-            with open(session, "w") as f:
-                json.dump(msgs, f)
-        except Exception as e:
-            return e
+    save_session(session, msgs)
     return response_msg.content
 
 def main():

@@ -4,6 +4,7 @@ import json
 import argparse
 import sys
 import os
+from chatcore import *
 
 
 urls = {
@@ -15,17 +16,8 @@ urls = {
 def chat(api_key, secret_key, session, content, m):
     url = urls[m] + "?access_token=" + get_access_token(api_key, secret_key)
     msg = {"role": "user", "content": content}
-    if session != "":
-        try:
-            with open(session, "r") as f:
-                msgs = json.load(f)
-                if len(msgs) > 1000:
-                    msgs = msgs[:1000]
-                msgs.append(msg)
-        except Exception:
-            msgs = [msg]
-    else:
-        msgs = [msg]
+    msgs = load_session(session)
+    msgs.append(msg)
     payload = json.dumps({
         "messages": msgs
     })
@@ -36,14 +28,8 @@ def chat(api_key, secret_key, session, content, m):
     try:
         res = json.loads(response.text)
         ret = res["result"]
-        msg = {"role": "assiant", "content": ret}
-        msgs.append(msg)
-        if session!= "":
-            try:
-                with open(session, "w") as f:
-                    json.dump(msgs, f)
-            except Exception as e:
-                return e
+        msgs.append({"role": "assistant", "content": ret})
+        save_session(session, msgs)
         return ret
     except Exception as e:
         return e
