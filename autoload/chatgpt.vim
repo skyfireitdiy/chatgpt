@@ -331,3 +331,5 @@ augroup END
 call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/chatgpt.py",  "gpt-3.5-turbo"])
 call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/qianfan.py",  "ErnieBot"])
 call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/qianfan.py",  "ErnieBot-turbo"])
+call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/spark.py",  "Spark-V1"])
+call chatgpt#AddSourceConfig([expand("<sfile>:p:h") . "/spark.py",  "Spark-V2"])
