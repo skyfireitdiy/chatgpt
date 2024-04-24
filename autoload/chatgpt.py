@@ -11,6 +11,9 @@ except Exception as e:
 
 def chat(model, content, session):
     openai.api_key = os.environ["OPENAI_API_KEY"]
+    base_url = os.environ["OPENAI_BASE_URL"]
+    if len(base_url) != 0:
+        openai.base_url = base_url
     msg = {"role": "user", "content": content}
     msgs = load_session(session)
     msgs.append(msg)

@@ -21,7 +21,7 @@ def install_package(package_name):
     try:
         with open(os.devnull, 'w') as null:
             subprocess.check_call(
-                ["pip", "install", package_name], stderr=null, stdout=null)
+                    ["pip", "install", package_name], stderr=null, stdout=null)
     except subprocess.CalledProcessError:
         print(f"Failed to install {package_name}")
 
@@ -54,18 +54,18 @@ class WSParam(object):
                                  digestmod=hashlib.sha256).digest()
 
         signature_sha_base64 = base64.b64encode(
-            signature_sha).decode(encoding='utf-8')
+                signature_sha).decode(encoding='utf-8')
 
         authorization_origin = f'api_key="{self.APIKey}", algorithm="hmac-sha256", headers="host date request-line", signature="{signature_sha_base64}"'
 
         authorization = base64.b64encode(
-            authorization_origin.encode('utf-8')).decode(encoding='utf-8')
+                authorization_origin.encode('utf-8')).decode(encoding='utf-8')
 
         v = {
-            "authorization": authorization,
-            "date": date,
-            "host": self.host
-        }
+                "authorization": authorization,
+                "date": date,
+                "host": self.host
+                }
         url = self.spark_url + '?' + urlencode(v)
         return url
 
@@ -84,24 +84,24 @@ def run(ws, *args):
 
 def gen_params(appid, domain, random_threshold, max_tokens, messages):
     data = {
-        "header": {
-            "app_id": appid,
-            "uid": "1234"
-        },
-        "parameter": {
-            "chat": {
-                "domain": domain,
-                "random_threshold": random_threshold,
-                "max_tokens": max_tokens,
-                "auditing": "default"
+            "header": {
+                "app_id": appid,
+                "uid": "1234"
+                },
+            "parameter": {
+                "chat": {
+                    "domain": domain,
+                    "random_threshold": random_threshold,
+                    "max_tokens": max_tokens,
+                    "auditing": "default"
+                    }
+                },
+            "payload": {
+                "message": {
+                    "text": messages
+                    }
+                }
             }
-        },
-        "payload": {
-            "message": {
-                "text": messages
-            }
-        }
-    }
     return data
 
 
@@ -150,7 +150,7 @@ def Request(appid, secret, apikey, session, content, model):
     msgs.append(msg)
 
     ws = websocket.WebSocketApp(
-        ws_url, on_message=on_message, on_error=on_error, on_close=on_close, on_open=on_open)
+            ws_url, on_message=on_message, on_error=on_error, on_close=on_close, on_open=on_open)
     ws.appid = appid
     ws.messages = msgs
     ws.domain = domain

@@ -8,9 +8,9 @@ from chatcore import *
 
 
 urls = {
-    "ErnieBot": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant",
-    "ErnieBot-turbo": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant",
-}
+        "ErnieBot": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant",
+        "ErnieBot-turbo": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant",
+        }
 
 
 def chat(api_key, secret_key, session, content, m):
@@ -20,10 +20,10 @@ def chat(api_key, secret_key, session, content, m):
     msgs.append(msg)
     payload = json.dumps({
         "messages": msgs
-    })
+        })
     headers = {
-        'Content-Type': 'application/json'
-    }
+            'Content-Type': 'application/json'
+            }
     response = requests.request("POST", url, headers=headers, data=payload)
     try:
         res = json.loads(response.text)
