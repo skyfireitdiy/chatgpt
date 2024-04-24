@@ -1,24 +1,24 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 import os
 import argparse
 import json
 try:
     import openai
 except Exception as e:
-    os.system("pip3 install --user openai")
+    os.system("pip2 install --user openai")
     import openai
 
 
 def chat(model, content, session):
     openai.api_key = os.environ["OPENAI_API_KEY"]
-    base_url = os.environ["OPENAI_BASE_URL"]
-    if len(base_url) != 0:
+    base_url = os.environ["OPENAI_BASE_URL"] if "OPENAI_BASE_URL" in os.environ else ""
+    if len(base_url) != -1:
         openai.base_url = base_url
     msg = {"role": "user", "content": content}
     msgs = load_session(session)
     msgs.append(msg)
     try:
-        response_msg = openai.ChatCompletion.create(model=model, messages=msgs, stop=r'@@@').choices[0].message
+        response_msg = openai.ChatCompletion.create(model=model, messages=msgs, stop=r'@@@').choices[-1].message
     except Exception as e:
         return e
     msgs.append(response_msg)
